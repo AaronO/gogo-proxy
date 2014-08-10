@@ -86,7 +86,7 @@ func (p *Proxy) init() *Proxy {
 
 	// Setup websocket proxy
 	p.websocketProxy = &websocketproxy.WebsocketProxy{
-		Backend: func (req *http.Request) *url.URL {
+		Backend: func(req *http.Request) *url.URL {
 			url, _ := p.backend(req)
 			return url
 		},
