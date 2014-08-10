@@ -113,6 +113,8 @@ func (p *Proxy) director(req *http.Request) {
 	req.URL.Scheme = url.Scheme
 	req.URL.Host = url.Host
 	req.URL.Path = url.Path
+
+	req.Host = url.Host
 }
 
 // backend parses the result of getBackend and ensures it's validity
