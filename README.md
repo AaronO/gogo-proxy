@@ -42,5 +42,5 @@ func main() {
 
 
 ## Acknowledgements
-  - [websocketproxy](https://github.com/koding/websocketproxy)  is written by @arslan
+  - [websocketproxy](https://github.com/koding/websocketproxy)  is written by [@fatih](https://github.com/fatih)
   - Inspired by [loadfire](https://github.com/FriendCode/loadfire) (disclaimer: I wrote this too)
