@@ -18,6 +18,11 @@ func TestUrlNormalization(t *testing.T) {
 	shouldEqual(normalizeUrl("example.com"), "http://example.com/", t)
 	shouldEqual(normalizeUrl("example.com"), "http://example.com/", t)
 	shouldEqual(normalizeUrl("example.com/dir/"), "http://example.com/dir/", t)
+
+	shouldEqual(normalizeUrl("localhost:3000"), "http://localhost:3000/", t)
+	shouldEqual(normalizeUrl("example.com:3000"), "http://example.com:3000/", t)
+	shouldEqual(normalizeUrl("https://example.com:3000"), "https://example.com:3000/", t)
+	shouldEqual(normalizeUrl("192.168.1.1:3000"), "http://192.168.1.1:3000/", t)
 }
 
 func TestHttpScheme(t *testing.T) {
