@@ -39,3 +39,8 @@ func main() {
     http.ListenAndServe(":8080", p)
 }
 ```
+
+
+### Acknowledgements
+  - [websocketproxy](https://github.com/koding/websocketproxy)  is written by @arslan
+  - Inspired by [loadfire](https://github.com/FriendCode/loadfire) (disclaimer: I wrote this too)
