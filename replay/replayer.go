@@ -63,6 +63,11 @@ func (r *Replayer) Header() http.Header {
 }
 
 func (r *Replayer) Write(data []byte) (int, error) {
+	// Don't write any data (this will be retried)
+	if r.IsFailed() {
+		return len(data), nil
+	}
+
 	fmt.Printf("Writing %d bytes\n", len(data))
 	r.Play.Bytes += len(data)
 	r.Play.Writes += 1
@@ -70,8 +75,13 @@ func (r *Replayer) Write(data []byte) (int, error) {
 }
 
 func (r *Replayer) WriteHeader(status int) {
-	fmt.Printf("Writing status %d\n", status)
 	r.Play.Status = status
+
+	// This request is failing don't write out please ...
+	if r.IsFailed() {
+		return
+	}
+
 	r.writer.WriteHeader(status)
 }
 
@@ -81,4 +91,8 @@ func (r *Replayer) GetError() error {
 	}
 
 	return nil
+}
+
+func (r *Replayer) IsFailed() bool {
+	return r.GetError() != nil
 }
