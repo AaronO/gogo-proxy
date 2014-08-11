@@ -43,8 +43,11 @@ func New(opts ProxyOptions) (*Proxy, error) {
 	if opts.Balancer == nil {
 		if opts.Backend == "" {
 			return nil, errors.New("Please provide a Backend or a Balancer")
-		} else if err := validateUrl(opts.Backend); err != nil {
+		} else if err := validateUrl(normalizeUrl(opts.Backend)); err != nil {
 			return nil, err
+		} else {
+			// Normalize backend's url
+			opts.Backend = normalizeUrl(opts.Backend)
 		}
 	}
 
@@ -124,11 +127,14 @@ func (p *Proxy) backend(req *http.Request) (*url.URL, error) {
 		return nil, err
 	}
 
-	if err := validateUrl(rawurl); err != nil {
+	// Normalize URL
+	backendUrl := normalizeUrl(rawurl)
+
+	if err := validateUrl(backendUrl); err != nil {
 		return nil, err
 	}
 
-	return url.Parse(rawurl)
+	return url.Parse(backendUrl)
 }
 
 // getBackend gets the backend selected by the balancer or the static one set by the 'Backend' attribute
@@ -153,6 +159,30 @@ func validateUrl(rawurl string) error {
 
 	// All is good
 	return nil
+}
+
+// normalizeUrl try's to add a scheme to a url if doesn't any
+func normalizeUrl(rawurl string) string {
+	// default "://" to "http://"
+	if strings.HasPrefix(rawurl, "://") {
+		rawurl = strings.Replace(rawurl, "://", "http://", 1)
+	}
+
+	parsed, err := url.Parse(rawurl)
+	if err != nil {
+		return rawurl
+	}
+
+	// Cleanup or default scheme to http
+	parsed.Scheme = httpScheme(parsed.Scheme)
+
+	// Default path
+	if parsed.Path == "" {
+		parsed.Path = "/"
+	}
+
+	// Return URL string
+	return parsed.String()
 }
 
 // websocketScheme picks a suitable websocket scheme
