@@ -4,7 +4,7 @@ gogo-proxy
 A fast and robust http/websocket reverse proxy library written in Go
 
 
-### Features
+## Features
   - **Simple:**
     - Implements `http.Handler` interface
     - Easy to write `Balancer`s for custom routing logic
@@ -19,7 +19,7 @@ A fast and robust http/websocket reverse proxy library written in Go
     - Easy to deploy (proxies can be compiled as single binaries)
 
 
-### Example
+## Example
 
 ```go
 package main
@@ -41,6 +41,6 @@ func main() {
 ```
 
 
-### Acknowledgements
+## Acknowledgements
   - [websocketproxy](https://github.com/koding/websocketproxy)  is written by @arslan
   - Inspired by [loadfire](https://github.com/FriendCode/loadfire) (disclaimer: I wrote this too)
