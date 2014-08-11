@@ -80,8 +80,6 @@ func New(opts ProxyOptions) (*Proxy, error) {
 // ServeHTTP allows us to comply to the http.Handler interface
 func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if isWebsocket(req) {
-		// we don't use https explicitly, ssl termination is done here
-		req.URL.Scheme = "ws"
 		p.websocketProxy.ServeHTTP(rw, req)
 		return
 	}
