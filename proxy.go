@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -23,6 +24,10 @@ type ProxyOptions struct {
 
 	// A static backend to route to
 	Backend string
+
+	// Rewriter is a function modifying the request before it's proxied
+	// usually it should change the hostname of the request object, etc ...
+	Rewriter func(req *http.Request, destUrl *url.URL)
 }
 
 type Proxy struct {
@@ -60,6 +65,11 @@ func New(opts ProxyOptions) (*Proxy, error) {
 		opts.Period = 100 * time.Millisecond
 	}
 
+	// Default for Rewriter
+	if opts.Rewriter == nil {
+		opts.Rewriter = DefaultRewriter
+	}
+
 	p := &Proxy{
 		ProxyOptions: &opts,
 	}
@@ -90,6 +100,7 @@ func (p *Proxy) init() *Proxy {
 	p.websocketProxy = &websocketproxy.WebsocketProxy{
 		Backend: func(req *http.Request) *url.URL {
 			url, _ := p.backend(req)
+			p.Rewriter(req, url)
 			return url
 		},
 		Upgrader: &websocket.Upgrader{
@@ -111,12 +122,7 @@ func (p *Proxy) director(req *http.Request) {
 		return
 	}
 
-	// Rewrite outgoing request url
-	req.URL.Scheme = url.Scheme
-	req.URL.Host = url.Host
-	req.URL.Path = url.Path
-
-	req.Host = url.Host
+	p.Rewriter(req, url)
 }
 
 // backend parses the result of getBackend and ensures it's validity
@@ -142,4 +148,21 @@ func (p *Proxy) getBackend(req *http.Request) (string, error) {
 		return p.Backend, nil
 	}
 	return p.Balancer(req)
+}
+
+// DefaultRewriter adjust the *http.Request object it's attributes
+// match those of the destionation url (scheme, host, path, ...)
+func DefaultRewriter(req *http.Request, url *url.URL) {
+	// Pick scheme differently depending on if the request is http or websocket
+	schemeFunc := httpScheme
+	if isWebsocket(req) {
+		schemeFunc = websocketScheme
+	}
+
+	// Rewrite outgoing request url
+	req.URL.Scheme = schemeFunc(url.Scheme)
+	req.URL.Host = url.Host
+	req.URL.Path = path.Join(url.Path, req.URL.Path)
+
+	req.Host = url.Host
 }
