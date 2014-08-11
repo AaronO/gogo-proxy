@@ -1,7 +1,7 @@
 gogo-proxy
 ==========
 
-A fast and robust http/websocket reverse proxy written in Go
+A fast and robust http/websocket reverse proxy library written in Go
 
 
 ### Features
@@ -13,8 +13,10 @@ A fast and robust http/websocket reverse proxy written in Go
   - **Flexible:**
     - Custom error handling (so you can draw custom error pages etc ...) (use `ErrorHandler`)
     - Custom request rewriting (use `Rewriter`)
+    - Your `Balancer` lookups can use information from the request, hard coded rules or they can query *databases* such as `redis`, `memcache`, `etcd`, `mysql`, ...
   - **Fast & "scalable":**
     - Written in go, so concurrent by default and fast
+    - Easy to deploy (proxies can be compiled as single binaries)
 
 
 ### Example
