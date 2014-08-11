@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/koding/websocketproxy"
 
-	"fmt"
+	"github.com/AaronO/gogo-proxy/replay"
 )
 
 type ProxyOptions struct {
@@ -30,6 +30,9 @@ type ProxyOptions struct {
 	// Rewriter is a function modifying the request before it's proxied
 	// usually it should change the hostname of the request object, etc ...
 	Rewriter func(req *http.Request, destUrl *url.URL)
+
+	// Allows to customize how errors are written to responses
+	ErrorHandler func(rw http.ResponseWriter, req *http.Request, err error)
 }
 
 type Proxy struct {
@@ -81,38 +84,27 @@ func New(opts ProxyOptions) (*Proxy, error) {
 
 // ServeHTTP allows us to comply to the http.Handler interface
 func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	// Proxy websocket traffic
 	if isWebsocket(req) {
 		p.websocketProxy.ServeHTTP(rw, req)
 		return
 	}
 
-	replayer, err := NewReplayer(req, rw)
-	if err != nil {
-		fmt.Printf("Replay error %s\n", err)
-		return
+	// Run HTTP traffic through replayer if needed
+	var handler http.Handler = p.httpProxy
+	if p.Retries > 1 || p.ErrorHandler != nil {
+		// Create replayer middleware
+		m := replay.NewMiddleware(p.Retries, p.Period, p.httpProxy)
+
+		// Set error handler
+		m.ErrorHandler = p.ErrorHandler
+
+		// Use as handler
+		handler = m
 	}
 
-	i := 0
-
-	retryWait(func() error {
-		i += 1
-
-		fmt.Printf("Retry #%d\n", i)
-
-		newReq, err := replayer.Replay()
-		if err != nil {
-			return err
-		}
-
-		p.httpProxy.ServeHTTP(replayer, newReq)
-
-		if err := replayer.GetError(); err != nil {
-			replayer.Stop()
-			return err
-		}
-
-		return nil
-	}, p.Retries, p.Period)
+	// Proxy HTTP traffic
+	handler.ServeHTTP(rw, req)
 }
 
 // init sets up proxies and other stuff based on options
