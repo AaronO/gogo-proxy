@@ -96,9 +96,6 @@ func httpScheme(scheme string) string {
 
 // isWebsocket checks wether the incoming request is a part of websocket handshake
 func isWebsocket(req *http.Request) bool {
-	if strings.ToLower(req.Header.Get("Upgrade")) != "websocket" ||
-		!strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade") {
-		return false
-	}
-	return true
+	return strings.ToLower(req.Header.Get("Upgrade")) == "websocket" ||
+	strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade")
 }
