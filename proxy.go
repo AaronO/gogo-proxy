@@ -174,7 +174,18 @@ func normalizeUrl(rawurl string) string {
 	}
 
 	// Cleanup or default scheme to http
-	parsed.Scheme = httpScheme(parsed.Scheme)
+	newScheme = httpScheme(parsed.Scheme)
+	if newScheme != parsed.Scheme {
+		// Use new scheme
+		parsed.Scheme = newScheme
+
+		// We need to reparse the URL because now that there is a prefix
+		// the "Host" and "Path" fields are most likely going to change
+		parsed, err = url.Parse(parsed.String())
+		if err != nil {
+			return rawurl
+		}
+	}
 
 	// Default path
 	if parsed.Path == "" {
