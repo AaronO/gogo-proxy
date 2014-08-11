@@ -170,6 +170,21 @@ func websocketScheme(scheme string) string {
 	return "ws"
 }
 
+// httpScheme picks a suitable http scheme
+func httpScheme(scheme string) string {
+	switch scheme {
+		case "ws":
+			return "http"
+		case "wss":
+			return "https"
+		case "http":
+		case "https":
+			return scheme
+	}
+	// Default
+	return "http"
+}
+
 // isWebsocket checks wether the incoming request is a part of websocket handshake
 func isWebsocket(req *http.Request) bool {
 	if strings.ToLower(req.Header.Get("Upgrade")) != "websocket" ||
