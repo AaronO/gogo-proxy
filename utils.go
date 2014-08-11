@@ -49,6 +49,12 @@ func normalizeUrl(rawurl string) string {
 		}
 	}
 
+	// No host, after adjusting the scheme
+	// means that this url is invalid
+	if parsed.Host == "" {
+		return ""
+	}
+
 	// Default path
 	if parsed.Path == "" {
 		parsed.Path = "/"
