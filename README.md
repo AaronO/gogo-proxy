@@ -17,7 +17,7 @@ import (
 func main() {
     p, _ := proxy.New(proxy.ProxyOptions{
         Balancer: func(req *http.Request) (string, error) {
-            return "https://www.google.com"+req.URL.Path, nil
+            return "https://www.google.com", nil
         },
     })
 
