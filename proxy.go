@@ -199,13 +199,13 @@ func normalizeUrl(rawurl string) string {
 // websocketScheme picks a suitable websocket scheme
 func websocketScheme(scheme string) string {
 	switch scheme {
-		case "http":
-			return "ws"
-		case "https":
-			return "wss"
-		case "ws":
-		case "wss":
-			return scheme
+	case "http":
+		return "ws"
+	case "https":
+		return "wss"
+	case "ws":
+	case "wss":
+		return scheme
 	}
 	// Default
 	return "ws"
@@ -214,13 +214,13 @@ func websocketScheme(scheme string) string {
 // httpScheme picks a suitable http scheme
 func httpScheme(scheme string) string {
 	switch scheme {
-		case "ws":
-			return "http"
-		case "wss":
-			return "https"
-		case "http":
-		case "https":
-			return scheme
+	case "ws":
+		return "http"
+	case "wss":
+		return "https"
+	case "http":
+	case "https":
+		return scheme
 	}
 	// Default
 	return "http"
