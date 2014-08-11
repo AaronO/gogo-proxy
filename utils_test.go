@@ -4,6 +4,20 @@ import (
 	"testing"
 )
 
+func TestUrlValidation(t *testing.T) {
+	if err := validateUrl(""); err == nil {
+		t.Errorf("Empty URLs should not pass validation")
+	}
+
+	if err := validateUrl("http://"); err == nil {
+		t.Errorf("URLs with only a protocol should not pass validation")
+	}
+
+	if err := validateUrl("http://127.0.0.1:5000/"); err != nil {
+		t.Errorf("Full URLs should pass validation")
+	}
+}
+
 func TestUrlNormalization(t *testing.T) {
 	shouldEqual(normalizeUrl(""), "", t)
 	shouldEqual(normalizeUrl("://"), "", t)
