@@ -1,10 +1,27 @@
 package proxy
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
 )
+
+// validateUrl generates an error if the the url isn't absolute or valid
+func validateUrl(rawurl string) error {
+	parsed, err := url.Parse(rawurl)
+	if err != nil {
+		return err
+	}
+
+	// Ensure url is absolute
+	if !parsed.IsAbs() {
+		return errors.New("Proxy must only proxy to absolute URLs")
+	}
+
+	// All is good
+	return nil
+}
 
 // normalizeUrl try's to add a scheme to a url if doesn't any
 func normalizeUrl(rawurl string) string {

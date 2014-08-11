@@ -143,19 +143,3 @@ func (p *Proxy) getBackend(req *http.Request) (string, error) {
 	}
 	return p.Balancer(req)
 }
-
-// validateUrl generates an error if the the url isn't absolute or valid
-func validateUrl(rawurl string) error {
-	parsed, err := url.Parse(rawurl)
-	if err != nil {
-		return err
-	}
-
-	// Ensure url is absolute
-	if !parsed.IsAbs() {
-		return errors.New("Proxy must only proxy to absolute URLs")
-	}
-
-	// All is good
-	return nil
-}
