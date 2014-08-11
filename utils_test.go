@@ -40,7 +40,6 @@ func TestWebsocketScheme(t *testing.T) {
 	shouldEqual(websocketScheme("abcd"), "ws", t)
 }
 
-
 // Utility function for shorter string compares
 func shouldEqual(value, expected string, t *testing.T) {
 	if value != expected {
