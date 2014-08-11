@@ -62,7 +62,7 @@ func New(opts ProxyOptions) (*Proxy, error) {
 
 	// Default for Retries
 	if opts.Retries == 0 {
-		opts.Retries = 50
+		opts.Retries = 1
 	}
 
 	// Default for Period
