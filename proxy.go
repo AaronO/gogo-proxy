@@ -125,8 +125,20 @@ func (p *Proxy) director(req *http.Request) {
 	p.Rewriter(req, url)
 }
 
-// backend parses the result of getBackend and ensures it's validity
+// backend return the full url object of the backend to route
+// after fetching the host backend and resolving it relative
+// to the current http request data
 func (p *Proxy) backend(req *http.Request) (*url.URL, error) {
+	hostUrl, err := p.backendHost(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return fullBackendURL(req, hostUrl)
+}
+
+// backendHost parses the result of getBackend and ensures it's validity
+func (p *Proxy) backendHost(req *http.Request) (*url.URL, error) {
 	rawurl, err := p.getBackend(req)
 	if err != nil {
 		return nil, err
@@ -150,19 +162,34 @@ func (p *Proxy) getBackend(req *http.Request) (string, error) {
 	return p.Balancer(req)
 }
 
-// DefaultRewriter adjust the *http.Request object it's attributes
-// match those of the destionation url (scheme, host, path, ...)
-func DefaultRewriter(req *http.Request, url *url.URL) {
+// fullBackendURL builds a url.URL object representing the destination's full URL
+// resolving path's etc ... relative to the request
+func fullBackendURL(req *http.Request, hostUrl *url.URL) (*url.URL, error) {
 	// Pick scheme differently depending on if the request is http or websocket
 	schemeFunc := httpScheme
 	if isWebsocket(req) {
 		schemeFunc = websocketScheme
 	}
 
-	// Rewrite outgoing request url
-	req.URL.Scheme = schemeFunc(url.Scheme)
-	req.URL.Host = url.Host
-	req.URL.Path = path.Join(url.Path, req.URL.Path)
+	newUrl, err := url.Parse(hostUrl.String())
+	if err != nil {
+		return nil, err
+	}
 
+	newUrl.Scheme = schemeFunc(hostUrl.Scheme)
+	newUrl.Host = hostUrl.Host
+	newUrl.Path = path.Join(hostUrl.Path, req.URL.Path)
+
+	return newUrl, nil
+}
+
+// DefaultRewriter adjust the *http.Request object it's attributes
+// match those of the destionation url (scheme, host, path, ...)
+func DefaultRewriter(req *http.Request, url *url.URL) {
+	req.URL.Scheme = url.Scheme
+	req.URL.Host = url.Host
+	req.URL.Path = url.Path
+
+	// Rewrite outgoing request url
 	req.Host = url.Host
 }
