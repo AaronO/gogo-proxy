@@ -8,25 +8,25 @@ import (
 )
 
 func TestRoundrobinEmpty(t *testing.T) {
-	balancer := proxy.RoundrobinBalancer()
+	balancer := proxy.Roundrobin()
 
 	// Getting a backend from an empty round robin balancer should fail
 	if _, err := balancer(nil); err == nil {
-		t.Fatalf("RoundrobinBalancer should fail when given no hosts")
+		t.Fatalf("Roundrobin should fail when given no hosts")
 	}
 }
 
 func TestRandomEmpty(t *testing.T) {
-	balancer := proxy.RandomBalancer()
+	balancer := proxy.Random()
 
 	// Getting a backend from an empty random balancer should fail
 	if _, err := balancer(nil); err == nil {
-		t.Fatalf("RandomBalancer should fail when given no hosts")
+		t.Fatalf("Random should fail when given no hosts")
 	}
 }
 
 func TestRoundrobin(t *testing.T) {
-	balancer := proxy.RoundrobinBalancer("1", "2", "3")
+	balancer := proxy.Roundrobin("1", "2", "3")
 
 	hosts := []string{}
 
@@ -45,6 +45,6 @@ func TestRoundrobin(t *testing.T) {
 	)
 
 	if !equal {
-		t.Fatalf("RoundrobinBalancer did not generate expected hosts")
+		t.Fatalf("Roundrobin did not generate expected hosts")
 	}
 }
