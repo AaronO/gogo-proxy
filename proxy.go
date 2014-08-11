@@ -10,6 +10,8 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/koding/websocketproxy"
+
+	"fmt"
 )
 
 type ProxyOptions struct {
@@ -57,7 +59,7 @@ func New(opts ProxyOptions) (*Proxy, error) {
 
 	// Default for Retries
 	if opts.Retries == 0 {
-		opts.Retries = 1
+		opts.Retries = 50
 	}
 
 	// Default for Period
@@ -84,7 +86,33 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	p.httpProxy.ServeHTTP(rw, req)
+	replayer, err := NewReplayer(req, rw)
+	if err != nil {
+		fmt.Printf("Replay error %s\n", err)
+		return
+	}
+
+	i := 0
+
+	retryWait(func() error {
+		i += 1
+
+		fmt.Printf("Retry #%d\n", i)
+
+		newReq, err := replayer.Replay()
+		if err != nil {
+			return err
+		}
+
+		p.httpProxy.ServeHTTP(replayer, newReq)
+
+		if err := replayer.GetError(); err != nil {
+			replayer.Stop()
+			return err
+		}
+
+		return nil
+	}, p.Retries, p.Period)
 }
 
 // init sets up proxies and other stuff based on options
