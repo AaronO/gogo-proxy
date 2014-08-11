@@ -174,7 +174,7 @@ func normalizeUrl(rawurl string) string {
 	}
 
 	// Cleanup or default scheme to http
-	newScheme = httpScheme(parsed.Scheme)
+	newScheme := httpScheme(parsed.Scheme)
 	if newScheme != parsed.Scheme {
 		// Use new scheme
 		parsed.Scheme = newScheme
