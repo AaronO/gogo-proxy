@@ -155,8 +155,22 @@ func validateUrl(rawurl string) error {
 	return nil
 }
 
-// isWebsocket checks wether the incoming request is a part of websocket
-// handshake
+// websocketScheme picks a suitable websocket scheme
+func websocketScheme(scheme string) string {
+	switch scheme {
+		case "http":
+			return "ws"
+		case "https":
+			return "wss"
+		case "ws":
+		case "wss":
+			return scheme
+	}
+	// Default
+	return "ws"
+}
+
+// isWebsocket checks wether the incoming request is a part of websocket handshake
 func isWebsocket(req *http.Request) bool {
 	if strings.ToLower(req.Header.Get("Upgrade")) != "websocket" ||
 		!strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade") {
