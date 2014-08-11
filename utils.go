@@ -14,6 +14,11 @@ func validateUrl(rawurl string) error {
 		return err
 	}
 
+	// Ensure url has host
+	if parsed.Host == "" {
+		return errors.New("Proxy URLs must contain a hostname")
+	}
+
 	// Ensure url is absolute
 	if !parsed.IsAbs() {
 		return errors.New("Proxy must only proxy to absolute URLs")
