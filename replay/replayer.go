@@ -58,7 +58,6 @@ func (r *Replayer) Replay() (*http.Request, error) {
 ////
 
 func (r *Replayer) Header() http.Header {
-	fmt.Printf("Getting headers")
 	return r.writer.Header()
 }
 
@@ -68,7 +67,6 @@ func (r *Replayer) Write(data []byte) (int, error) {
 		return len(data), nil
 	}
 
-	fmt.Printf("Writing %d bytes\n", len(data))
 	r.Play.Bytes += len(data)
 	r.Play.Writes += 1
 	return r.writer.Write(data)
