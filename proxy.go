@@ -103,6 +103,16 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		handler = m
 	}
 
+	// Get backend URL
+	url, err := p.backend(req)
+	if url == nil || err != nil {
+		p.ErrorHandler(rw, req, err)
+		return
+	}
+
+	// Rewrite and route
+	p.Rewriter(req, url)
+
 	// Proxy HTTP traffic
 	handler.ServeHTTP(rw, req)
 }
@@ -135,12 +145,6 @@ func (p *Proxy) init() *Proxy {
 
 // director rewrites a http.Request to route to the correct host
 func (p *Proxy) director(req *http.Request) {
-	url, err := p.backend(req)
-	if url == nil || err != nil {
-		return
-	}
-
-	p.Rewriter(req, url)
 }
 
 // backend return the full url object of the backend to route
