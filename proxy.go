@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"path"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -200,7 +200,7 @@ func fullBackendURL(req *http.Request, hostUrl *url.URL) (*url.URL, error) {
 
 	newUrl.Scheme = schemeFunc(hostUrl.Scheme)
 	newUrl.Host = hostUrl.Host
-	newUrl.Path = path.Join(hostUrl.Path, req.URL.Path)
+	newUrl.Path = singleJoiningSlash(hostUrl.Path, req.URL.Path)
 
 	return newUrl, nil
 }
@@ -214,4 +214,16 @@ func DefaultRewriter(req *http.Request, url *url.URL) {
 
 	// Rewrite outgoing request url
 	req.Host = url.Host
+}
+
+func singleJoiningSlash(a, b string) string {
+	aslash := strings.HasSuffix(a, "/")
+	bslash := strings.HasPrefix(b, "/")
+	switch {
+	case aslash && bslash:
+		return a + b[1:]
+	case !aslash && !bslash:
+		return a + "/" + b
+	}
+	return a + b
 }
